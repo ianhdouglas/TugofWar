@@ -1,5 +1,5 @@
 # TugofWar
-ENGR 103 Final Project
+**ENGR 103 Final Project**
 
 **OBJECTIVE:** Players compete against each other to "pull" the LED dot to their side of the board. Plays like real life tug of war except instead of pulling a rope you're pressing a button.
 
