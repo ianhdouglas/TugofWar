@@ -19,19 +19,19 @@ int factor = 1;
 void setup() {
   CircuitPlayground.begin();
   Serial.begin(9600);
-  attachInterrupt(digitalPinToInterrupt(4),left,FALLING);
+  attachInterrupt(digitalPinToInterrupt(4),left,FALLING); // interrupts for later use
   attachInterrupt(digitalPinToInterrupt(5),right,FALLING);
   attachInterrupt(digitalPinToInterrupt(7),onoff,CHANGE);
-  countdown();
-  soundOn = CircuitPlayground.slideSwitch();
-  delay_6s.start(6000, AsyncDelay::MILLIS);
+  countdown(); // play countdown animation
+  soundOn = CircuitPlayground.slideSwitch(); //sound check
+  delay_6s.start(6000, AsyncDelay::MILLIS); //start timers for diffculty
   delay_12s.start(12000, AsyncDelay::MILLIS);
   delay_30s.start(30000, AsyncDelay::MILLIS);
 }
 
 void loop() {
-  prevLightPos = lightPos;
-  if (delay_6s.isExpired()){
+  prevLightPos = lightPos; //store light position to use later and decide whether to play tone
+  if (delay_6s.isExpired()){ //these timers increment the input scaling/difficulty
     factor = 2;
     color = 50;
   }
@@ -44,36 +44,36 @@ void loop() {
     color = 0;
   }
 
-  if(switchFlag){
-    soundOn = CircuitPlayground.slideSwitch();
+  if(switchFlag){ //gets switch position for volume toggle
+    soundOn = CircuitPlayground.slideSwitch(); 
   }
 
-  if(leftFlag){
+  if(leftFlag){ //decrements position variable (not light pos)
     leftFlag = 0;
     delay(30);
     position = position - factor;
   }
-  if(rightFlag){
+  if(rightFlag){ //increments position variable (not light pos)
     rightFlag = 0;
     delay(30);
     position = position + factor;
   }
 
-  decidePos();
+  decidePos(); //decides light position based on position variable
   
-  if(lightPos != 4.5){
+  if(lightPos != 4.5){ //for all positions except for the middle, set the light to its determined position and color
     CircuitPlayground.clearPixels();
     CircuitPlayground.setPixelColor(lightPos, CircuitPlayground.colorWheel(color));
   }
 
-  if(prevLightPos < lightPos && soundOn){
+  if(prevLightPos < lightPos && soundOn){ //logic for playing tones, checks if sound switch is on and if light position has moved
     CircuitPlayground.playTone(300, 25);
   }
   else if(prevLightPos > lightPos && soundOn){
     CircuitPlayground.playTone(600, 25);
   }
   
-  if(position >= rightWin){
+  if(position >= rightWin){ //logic for win animations
     rightAnimation();
     while(1);
   }
@@ -85,7 +85,7 @@ void loop() {
 
 }
 
-void decidePos(){
+void decidePos(){ //thresholds set light position based on 
   if(position >= 90){
     lightPos = 9;
   }
@@ -101,7 +101,7 @@ void decidePos(){
   else if(position >= 10){
     lightPos = 5;
   }
-  else if(position > -10 && position < 10){
+  else if(position > -10 && position < 10){ //special exception made for "center" position given the even number of LEDs
     lightPos = 4.5;
     CircuitPlayground.clearPixels();
     CircuitPlayground.setPixelColor(4, CircuitPlayground.colorWheel(color));
@@ -124,7 +124,7 @@ void decidePos(){
   }
 }
 
-void left(){
+void left(){ //ISR functions
   leftFlag = 1;
 }
 
@@ -136,7 +136,7 @@ void onoff(){
   switchFlag = 1;
 }
 
-void countdown(){
+void countdown(){ //countdown animation to play before the game starts
   for(int c=10; c>=0; c--) {
     CircuitPlayground.setPixelColor(c, 255, 0, 0);
     delay(35);
@@ -158,7 +158,7 @@ void countdown(){
   delay(200);
 }
 
-void leftAnimation(){
+void leftAnimation(){ //left win animation
   CircuitPlayground.setPixelColor(0, CircuitPlayground.colorWheel(color));
   CircuitPlayground.playTone(600, 50);
   delay(200);
@@ -179,7 +179,7 @@ void leftAnimation(){
   }
 }
 
-void rightAnimation(){
+void rightAnimation(){ //right win animation
   CircuitPlayground.setPixelColor(9, CircuitPlayground.colorWheel(color));
   CircuitPlayground.playTone(300, 50);
   delay(200);
